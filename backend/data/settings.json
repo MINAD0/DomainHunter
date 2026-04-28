@@ -1,0 +1,42 @@
+{
+  "ai": {
+    "provider": "openrouter",
+    "model": "openrouter/free",
+    "api_keys": {
+      "openai": "",
+      "gemini": "",
+      "claude": "",
+      "openrouter": "",
+      "custom": ""
+    },
+    "custom_endpoint": ""
+  },
+  "domain_providers": {
+    "namecheap": {
+      "api_user": "",
+      "api_key": "",
+      "username": "",
+      "client_ip": ""
+    },
+    "whoisxml": {
+      "api_key": ""
+    },
+    "godaddy": {
+      "api_key": "",
+      "api_secret": ""
+    },
+    "rapidapi": {
+      "api_key": "",
+      "host": "",
+      "url": "",
+      "domain_param": "domain"
+    }
+  },
+  "default_tlds": [
+    ".com"
+  ],
+  "max_checks_per_run": 50,
+  "delay_between_checks": 0.25,
+  "registrar_base_url": "https://www.namecheap.com/domains/registration/results/?domain="
+}
+

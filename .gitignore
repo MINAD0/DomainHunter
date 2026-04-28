@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+tmp*/
+available.txt
+tests/.available-test.txt
+.env
+.superpowers/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+backend/data/*.tmp
+output/
+*-dev.log
+*-dev.err.log
