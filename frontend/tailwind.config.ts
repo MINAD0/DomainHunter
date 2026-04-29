@@ -9,15 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: "#10233f",
-        ink: "#1f2937",
+        navy: "#101720",
+        ink: "#16202b",
         surface: "#ffffff",
-        mist: "#f3f6f8",
-        accent: "#17a673",
-        blue: "#2563eb"
+        mist: "#edf3f7",
+        accent: "#22d3a6",
+        blue: "#0ea5e9",
+        carbon: "#090d12",
+        graphite: "#131b24",
+        circuit: "#7c3aed",
+        signal: "#f7c948"
       },
       boxShadow: {
-        soft: "0 14px 40px rgba(16, 35, 63, 0.08)"
+        soft: "0 18px 50px rgba(9, 13, 18, 0.12)",
+        glow: "0 0 0 1px rgba(14, 165, 233, 0.18), 0 18px 55px rgba(14, 165, 233, 0.14)"
       }
     }
   },
@@ -25,4 +30,3 @@ const config: Config = {
 };
 
 export default config;
-

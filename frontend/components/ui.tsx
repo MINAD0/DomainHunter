@@ -29,7 +29,7 @@ export function Panel({
 }) {
   return (
     <section
-      className={`min-w-0 max-w-[calc(100vw-2rem)] rounded-md border border-slate-200 bg-white shadow-soft ${className}`}
+      className={`w-full min-w-0 max-w-full rounded-md border border-cyan-900/10 bg-white/95 shadow-soft ${className}`}
     >
       {children}
     </section>
@@ -52,7 +52,7 @@ export function Field({
 }
 
 export const inputClass =
-  "focus-ring min-h-11 w-full min-w-0 max-w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm";
+  "focus-ring min-h-11 w-full min-w-0 max-w-full rounded-md border border-cyan-900/15 bg-white px-3 text-sm text-slate-950 shadow-sm transition hover:border-blue/40";
 
 export const buttonClass =
   "focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
@@ -67,10 +67,10 @@ export function StatusMessage({
   const Icon = type === "success" ? CheckCircle2 : type === "error" ? XCircle : Loader2;
   const color =
     type === "success"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      ? "border-accent/30 bg-accent/10 text-emerald-900"
       : type === "error"
         ? "border-red-200 bg-red-50 text-red-800"
-        : "border-blue-200 bg-blue-50 text-blue-800";
+        : "border-blue/25 bg-blue/10 text-sky-900";
   return (
     <div className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm ${color}`}>
       <Icon className={`h-4 w-4 ${type === "loading" ? "animate-spin" : ""}`} aria-hidden="true" />
@@ -81,7 +81,7 @@ export function StatusMessage({
 
 export function AvailableBadge() {
   return (
-    <span className="inline-flex min-h-7 items-center rounded-full bg-emerald-100 px-2.5 text-xs font-semibold text-emerald-800">
+    <span className="inline-flex min-h-7 items-center rounded-full border border-accent/35 bg-accent/12 px-2.5 text-xs font-semibold text-emerald-900">
       AVAILABLE
     </span>
   );

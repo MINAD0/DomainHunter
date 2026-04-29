@@ -45,7 +45,7 @@ export default function DashboardPage() {
         eyebrow="Dashboard"
         title="Domain Hunter"
         actions={
-          <Link className={`${buttonClass} bg-navy text-white hover:bg-slate-800`} href="/generator">
+          <Link className={`${buttonClass} bg-navy text-white hover:bg-slate-800`} href="/app/generator">
             Start scan
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
@@ -77,7 +77,7 @@ export default function DashboardPage() {
         <Panel className="p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-navy">Top saved domains</h2>
-            <Link className="text-sm font-semibold text-blue hover:underline" href="/saved">
+            <Link className="text-sm font-semibold text-blue hover:underline" href="/app/saved">
               View all
             </Link>
           </div>
@@ -90,7 +90,7 @@ export default function DashboardPage() {
                 >
                   <div>
                     <p className="font-semibold text-navy">{item.domain}</p>
-                    <p className="text-sm text-slate-500">{item.city} · score {item.score}</p>
+                    <p className="text-sm text-slate-500">{`${item.city} - score ${item.score}`}</p>
                   </div>
                   <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
                     Saved
@@ -124,4 +124,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
