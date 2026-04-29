@@ -10,12 +10,12 @@ export function PageTitle({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+    <div className="mb-6 flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
         <p className="text-sm font-semibold uppercase tracking-wide text-blue">{eyebrow}</p>
-        <h1 className="mt-1 text-2xl font-semibold text-navy sm:text-3xl">{title}</h1>
+        <h1 className="mt-1 break-words text-2xl font-semibold text-navy sm:text-3xl">{title}</h1>
       </div>
-      {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+      {actions ? <div className="flex min-w-0 flex-wrap gap-2">{actions}</div> : null}
     </div>
   );
 }
@@ -29,7 +29,7 @@ export function Panel({
 }) {
   return (
     <section
-      className={`w-full min-w-0 max-w-full rounded-md border border-cyan-900/10 bg-white/95 shadow-soft ${className}`}
+      className={`w-full min-w-0 max-w-[calc(100vw-2rem)] rounded-md border border-cyan-900/10 bg-white/95 shadow-soft sm:max-w-full ${className}`}
     >
       {children}
     </section>
@@ -44,7 +44,7 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
+    <label className="block min-w-0 max-w-full">
       <span className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</span>
       {children}
     </label>
@@ -52,7 +52,7 @@ export function Field({
 }
 
 export const inputClass =
-  "focus-ring min-h-11 w-full min-w-0 max-w-full rounded-md border border-cyan-900/15 bg-white px-3 text-sm text-slate-950 shadow-sm transition hover:border-blue/40";
+  "focus-ring block min-h-11 w-full min-w-0 max-w-full rounded-md border border-cyan-900/15 bg-white px-3 text-sm text-slate-950 shadow-sm transition hover:border-blue/40";
 
 export const buttonClass =
   "focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";

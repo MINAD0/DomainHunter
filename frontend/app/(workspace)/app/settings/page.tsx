@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { SettingsPayload } from "@/lib/api";
 import { apiGet, apiPost } from "@/lib/api";
 import { emptySettings, parseTlds } from "@/lib/domain";
+import { providerApiKeyLabel, providerDisplayName, selectedProviderApiKey } from "@/lib/settings";
 import { Field, PageTitle, Panel, StatusMessage, buttonClass, inputClass } from "@/components/ui";
 
 const aiProviders = ["openrouter", "openai", "gemini", "claude", "custom"];
@@ -68,7 +69,7 @@ export default function SettingsPage() {
         {error ? <StatusMessage type="error">{error}</StatusMessage> : null}
       </div>
 
-      <div className="mt-4 grid gap-6 xl:grid-cols-2">
+      <div className="mt-4 grid min-w-0 max-w-full gap-6 xl:grid-cols-2">
         <Panel className="p-5">
           <h2 className="mb-4 text-lg font-semibold text-navy">AI config</h2>
           <div className="grid gap-4">
@@ -76,32 +77,32 @@ export default function SettingsPage() {
               <select className={inputClass} value={settings.ai.provider} onChange={(event) => update(["ai", "provider"], event.target.value)}>
                 {aiProviders.map((provider) => (
                   <option key={provider} value={provider}>
-                    {provider}
+                    {providerDisplayName(provider)}
                   </option>
                 ))}
               </select>
             </Field>
+            <Field label={providerApiKeyLabel(settings.ai.provider)}>
+              <input
+                className={inputClass}
+                type="password"
+                autoComplete="off"
+                value={selectedProviderApiKey(settings)}
+                onChange={(event) => update(["ai", "api_keys", settings.ai.provider], event.target.value)}
+              />
+            </Field>
             <Field label="Model">
               <input className={inputClass} value={settings.ai.model} onChange={(event) => update(["ai", "model"], event.target.value)} />
             </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {aiProviders.map((provider) => (
-                <Field key={provider} label={`${provider} key`}>
-                  <input
-                    className={inputClass}
-                    value={settings.ai.api_keys[provider] ?? ""}
-                    onChange={(event) => update(["ai", "api_keys", provider], event.target.value)}
-                  />
-                </Field>
-              ))}
-            </div>
-            <Field label="Custom endpoint">
-              <input
-                className={inputClass}
-                value={settings.ai.custom_endpoint}
-                onChange={(event) => update(["ai", "custom_endpoint"], event.target.value)}
-              />
-            </Field>
+            {settings.ai.provider === "custom" ? (
+              <Field label="Custom endpoint">
+                <input
+                  className={inputClass}
+                  value={settings.ai.custom_endpoint}
+                  onChange={(event) => update(["ai", "custom_endpoint"], event.target.value)}
+                />
+              </Field>
+            ) : null}
           </div>
         </Panel>
 
