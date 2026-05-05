@@ -32,12 +32,7 @@ describe("marketing site content", () => {
   });
 
   it("keeps the premium homepage section order stable", () => {
-    expect(homepageSections.map((section) => section.id)).toEqual([
-      "timing",
-      "workflow-edge",
-      "solo-hunter",
-      "get-started"
-    ]);
+    expect(homepageSections.map((section) => section.id)).toEqual(["get-started"]);
   });
 
   it("includes complete-guide commands for install and first run", () => {

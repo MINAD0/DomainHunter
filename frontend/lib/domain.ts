@@ -7,6 +7,18 @@ export const GEO_STYLES: GeoStyle[] = [
   "Premium Geo"
 ];
 
+export const COMMON_TLD_OPTIONS = [".com", ".net", ".org", ".io", ".co", ".ai", ".us"];
+
+export function allItemsSelected(options: string[], selected: string[]): boolean {
+  const normalized = Array.from(new Set(options.filter(Boolean)));
+  return normalized.length > 0 && normalized.every((item) => selected.includes(item));
+}
+
+export function toggleAllItems(options: string[], selected: string[]): string[] {
+  const normalized = Array.from(new Set(options.filter(Boolean)));
+  return allItemsSelected(normalized, selected) ? [] : normalized;
+}
+
 export function parseTlds(value: string): string[] {
   const tlds = value
     .split(/[,\s]+/)
@@ -14,6 +26,10 @@ export function parseTlds(value: string): string[] {
     .filter(Boolean)
     .map((item) => (item.startsWith(".") ? item : `.${item}`));
   return Array.from(new Set(tlds));
+}
+
+export function buildTldOptions(defaultTlds: string[]): string[] {
+  return Array.from(new Set([...COMMON_TLD_OPTIONS, ...defaultTlds.map((item) => item.toLowerCase())]));
 }
 
 export function validateGeneratorForm(input: {
@@ -74,4 +90,3 @@ export function emptySettings(): SettingsPayload {
     registrar_base_url: "https://www.namecheap.com/domains/registration/results/?domain="
   };
 }
-

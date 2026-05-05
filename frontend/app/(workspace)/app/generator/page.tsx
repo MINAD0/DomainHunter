@@ -1,11 +1,18 @@
 "use client";
 
-import { Play, RefreshCcw } from "lucide-react";
+import { ChevronDown, Play, RefreshCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import type { DomainResult, GeoStyle, SettingsPayload } from "@/lib/api";
 import { apiGet, apiPost } from "@/lib/api";
-import { GEO_STYLES, emptySettings, parseTlds, validateGeneratorForm } from "@/lib/domain";
+import {
+  allItemsSelected,
+  buildTldOptions,
+  GEO_STYLES,
+  emptySettings,
+  toggleAllItems,
+  validateGeneratorForm
+} from "@/lib/domain";
 import { DomainTable } from "@/components/domain-table";
 import { Field, PageTitle, Panel, StatusMessage, buttonClass, inputClass } from "@/components/ui";
 
@@ -15,7 +22,7 @@ export default function GeneratorPage() {
   const [country, setCountry] = useState("United States");
   const [selectedCities, setSelectedCities] = useState<string[]>(["Dallas"]);
   const [niche, setNiche] = useState("Industrial Cleaning");
-  const [tlds, setTlds] = useState(".com");
+  const [selectedTlds, setSelectedTlds] = useState<string[]>([".com"]);
   const [count, setCount] = useState(25);
   const [style, setStyle] = useState<GeoStyle>("Premium Geo");
   const [settings, setSettings] = useState<SettingsPayload | null>(null);
@@ -31,7 +38,7 @@ export default function GeneratorPage() {
     apiGet<SettingsPayload>("/settings")
       .then((data) => {
         setSettings(data);
-        setTlds(data.default_tlds.join(", "));
+        setSelectedTlds(data.default_tlds.length ? data.default_tlds : [".com"]);
       })
       .catch(() => setSettings(emptySettings()));
   }, []);
@@ -45,11 +52,24 @@ export default function GeneratorPage() {
       .catch((err) => setError(String(err)));
   }, [country]);
 
-  const normalizedTlds = useMemo(() => parseTlds(tlds), [tlds]);
+  const tldOptions = useMemo(
+    () => buildTldOptions(settings?.default_tlds ?? emptySettings().default_tlds),
+    [settings]
+  );
+  const allCitiesSelected = useMemo(
+    () => allItemsSelected(cities, selectedCities),
+    [cities, selectedCities]
+  );
 
   function toggleCity(city: string) {
     setSelectedCities((current) =>
       current.includes(city) ? current.filter((item) => item !== city) : [...current, city]
+    );
+  }
+
+  function toggleTld(tld: string) {
+    setSelectedTlds((current) =>
+      current.includes(tld) ? current.filter((item) => item !== tld) : [...current, tld]
     );
   }
 
@@ -58,7 +78,7 @@ export default function GeneratorPage() {
       country,
       cities: selectedCities,
       niche,
-      tlds: normalizedTlds,
+      tlds: selectedTlds,
       count
     });
     if (validation) {
@@ -73,7 +93,7 @@ export default function GeneratorPage() {
         country,
         cities: selectedCities,
         niche,
-        tlds: normalizedTlds,
+        tlds: selectedTlds,
         count,
         style
       });
@@ -88,10 +108,10 @@ export default function GeneratorPage() {
 
   return (
     <>
-      <PageTitle eyebrow="Geo Generator" title="Generate and check available GeoDomains" />
+      <PageTitle eyebrow="Domain Discovery" title="Discover, score, and check GeoDomains" />
 
-      <div className="grid max-w-full min-w-0 gap-6 xl:grid-cols-[420px_1fr]">
-        <Panel className="w-full overflow-hidden p-5">
+      <div className="grid max-w-full min-w-0 items-start gap-6 xl:grid-cols-[26rem_minmax(0,_1fr)] 2xl:grid-cols-[28rem_minmax(0,_1fr)]">
+        <Panel className="w-full overflow-hidden p-4 sm:p-5">
           <div className="grid min-w-0 gap-4">
             <Field label="Country">
               <select className={inputClass} value={country} onChange={(event) => setCountry(event.target.value)}>
@@ -102,11 +122,22 @@ export default function GeneratorPage() {
             </Field>
 
             <div>
-              <span className="mb-1.5 block text-sm font-semibold text-slate-700">Cities</span>
-              <div className="max-h-56 max-w-full overflow-auto rounded-md border border-slate-300 bg-white p-2">
+              <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+                <span className="block text-[13px] font-semibold text-slate-700 sm:text-sm">Cities</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="focus-ring inline-flex min-h-8 items-center rounded-md border border-cyan-900/10 bg-slate-50 px-2.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-100"
+                    onClick={() => setSelectedCities(toggleAllItems(cities, selectedCities))}
+                  >
+                    {allCitiesSelected ? "Clear all" : "Select all"}
+                  </button>
+                </div>
+              </div>
+              <div className="max-h-72 max-w-full overflow-auto rounded-md border border-slate-300 bg-white p-2">
                 <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-1">
                   {cities.map((city) => (
-                    <label key={city} className="flex min-h-10 items-center gap-2 rounded px-2 text-sm hover:bg-slate-50">
+                    <label key={city} className="flex min-h-10 items-center gap-2 rounded px-2 text-[15px] hover:bg-slate-50 sm:text-sm">
                       <input
                         type="checkbox"
                         className="h-4 w-4 rounded border-slate-300 text-blue"
@@ -124,9 +155,38 @@ export default function GeneratorPage() {
               <input className={inputClass} value={niche} onChange={(event) => setNiche(event.target.value)} />
             </Field>
 
-            <Field label="TLDs">
-              <input className={inputClass} value={tlds} onChange={(event) => setTlds(event.target.value)} />
-            </Field>
+            <div>
+              <span className="mb-1.5 block text-[13px] font-semibold text-slate-700 sm:text-sm">TLDs</span>
+              <details open className="rounded-md border border-cyan-900/15 bg-slate-50/70">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-[13px] font-semibold text-slate-700">
+                  <span>{selectedTlds.length} selected</span>
+                  <ChevronDown className="h-4 w-4 text-slate-500 transition group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <div className="grid gap-2 border-t border-cyan-900/10 p-3 sm:grid-cols-2">
+                  {tldOptions.map((tld) => {
+                    const checked = selectedTlds.includes(tld);
+                    return (
+                      <label
+                        key={tld}
+                        className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 text-[15px] font-medium transition sm:text-sm ${
+                          checked
+                            ? "border-blue/50 bg-blue/12 text-navy shadow-sm"
+                            : "border-cyan-900/15 bg-white text-slate-700 hover:border-blue/35 hover:bg-sky-50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-slate-300 text-blue"
+                          checked={checked}
+                          onChange={() => toggleTld(tld)}
+                        />
+                        <span>{tld}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </details>
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Number of domains">
@@ -165,9 +225,9 @@ export default function GeneratorPage() {
           {loading ? <StatusMessage type="loading">Checking availability...</StatusMessage> : null}
           {message ? <StatusMessage type="success">{message}</StatusMessage> : null}
           {error ? <StatusMessage type="error">{error}</StatusMessage> : null}
-          <Panel>
+          <Panel className="overflow-hidden">
             <div className="border-b border-slate-200 px-4 py-3">
-              <h2 className="font-semibold text-navy">Available results</h2>
+              <h2 className="text-base font-semibold text-navy sm:text-lg">Available results</h2>
             </div>
             <DomainTable domains={results} settings={settings} />
           </Panel>

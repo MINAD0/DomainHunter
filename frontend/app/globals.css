@@ -6,6 +6,15 @@
   color-scheme: light;
   --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Libre Baskerville", Georgia, serif;
   --font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --marketing-bg: #f7f3ec;
+  --marketing-surface: #fbf9f4;
+  --marketing-surface-strong: #fffdfa;
+  --marketing-ink: #18222c;
+  --marketing-muted: #68737b;
+  --marketing-border: rgba(18, 31, 46, 0.12);
+  --marketing-accent: #a9834d;
+  --marketing-deep: #1b2733;
+  --marketing-blue: #dbe7ee;
 }
 
 * {
@@ -19,8 +28,8 @@ body {
 
 body {
   margin: 0;
-  background: #edf3f7;
-  color: #16202b;
+  background: var(--marketing-bg);
+  color: var(--marketing-ink);
   overflow-x: hidden;
   font-family: var(--font-body);
 }
@@ -37,7 +46,10 @@ textarea {
 }
 
 .marketing-body {
-  background: linear-gradient(180deg, #090d12 0%, #101720 48%, #edf3f7 48%, #edf3f7 100%);
+  background:
+    radial-gradient(circle at top left, rgba(169, 131, 77, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 18%, rgba(219, 231, 238, 0.8), transparent 22%),
+    linear-gradient(180deg, #faf7f1 0%, #f7f3ec 100%);
 }
 
 .marketing-display {
@@ -47,11 +59,51 @@ textarea {
 
 .marketing-panel {
   border-radius: 8px;
-  border: 1px solid rgba(125, 211, 252, 0.16);
+  border: 1px solid var(--marketing-border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(34, 211, 166, 0.04));
-  box-shadow: 0 30px 80px rgba(2, 6, 23, 0.35);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 252, 247, 0.92)),
+    linear-gradient(135deg, rgba(219, 231, 238, 0.3), rgba(169, 131, 77, 0.05));
+  box-shadow: 0 26px 80px rgba(30, 40, 56, 0.12);
+}
+
+.marketing-hero {
+  background:
+    radial-gradient(circle at top right, rgba(219, 231, 238, 0.9), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 251, 246, 0.9));
+}
+
+.marketing-shell {
+  border-radius: 8px;
+  border: 1px solid var(--marketing-border);
+  background: rgba(255, 253, 249, 0.84);
+  box-shadow: 0 20px 60px rgba(22, 36, 49, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.marketing-chip {
+  border: 1px solid rgba(187, 138, 60, 0.26);
+  background: rgba(255, 252, 247, 0.86);
+  color: #8f6728;
+}
+
+.marketing-soft-card {
+  border-radius: 8px;
+  border: 1px solid rgba(26, 36, 49, 0.1);
+  background: rgba(255, 253, 249, 0.78);
+  box-shadow: 0 14px 40px rgba(22, 36, 49, 0.06);
+}
+
+.marketing-dark-stage {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(187, 138, 60, 0.12), transparent 22%),
+    linear-gradient(180deg, #121b26 0%, #182331 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.marketing-banded {
+  background: linear-gradient(180deg, rgba(255, 253, 249, 0.35), rgba(255, 253, 249, 0));
 }
 
 .marketing-command,

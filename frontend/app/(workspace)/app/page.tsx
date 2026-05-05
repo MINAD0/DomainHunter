@@ -58,11 +58,11 @@ export default function DashboardPage() {
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <Panel key={card.label} className="p-5">
+            <Panel key={card.label} className="p-4 sm:p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">{card.label}</p>
-                  <p className="mt-2 text-2xl font-semibold text-navy">{card.value}</p>
+                  <p className="text-[13px] font-medium text-slate-500 sm:text-sm">{card.label}</p>
+                  <p className="mt-2 text-xl font-semibold text-navy sm:text-2xl">{card.value}</p>
                 </div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-md bg-emerald-50 text-accent">
                   <Icon className="h-5 w-5" aria-hidden="true" />
@@ -74,9 +74,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <Panel className="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-navy">Top saved domains</h2>
+        <Panel className="p-4 sm:p-5">
+          <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-base font-semibold text-navy sm:text-lg">Top saved domains</h2>
             <Link className="text-sm font-semibold text-blue hover:underline" href="/app/saved">
               View all
             </Link>
@@ -88,8 +88,8 @@ export default function DashboardPage() {
                   key={item.domain}
                   className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-3"
                 >
-                  <div>
-                    <p className="font-semibold text-navy">{item.domain}</p>
+                  <div className="min-w-0">
+                    <p className="break-all font-semibold text-navy">{item.domain}</p>
                     <p className="text-sm text-slate-500">{`${item.city} - score ${item.score}`}</p>
                   </div>
                   <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
@@ -105,9 +105,9 @@ export default function DashboardPage() {
           </div>
         </Panel>
 
-        <Panel className="p-5">
-          <h2 className="text-lg font-semibold text-navy">Run order</h2>
-          <div className="mt-4 space-y-3 text-sm text-slate-600">
+        <Panel className="p-4 sm:p-5">
+          <h2 className="text-base font-semibold text-navy sm:text-lg">Run order</h2>
+          <div className="mt-4 space-y-3 text-[13px] text-slate-600 sm:text-sm">
             {["Add API keys", "Choose country, cities, niche, and TLDs", "Generate and check", "Save or export"].map(
               (item, index) => (
                 <div key={item} className="flex items-center gap-3">

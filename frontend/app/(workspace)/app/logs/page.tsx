@@ -40,8 +40,8 @@ export default function LogsPage() {
         }
       />
       {error ? <StatusMessage type="error">{error}</StatusMessage> : null}
-      <Panel className="p-4">
-        <pre className="min-h-96 overflow-auto whitespace-pre-wrap rounded-md bg-slate-950 p-4 text-sm leading-6 text-slate-100">
+      <Panel className="p-3 sm:p-4">
+        <pre className="min-h-72 overflow-auto whitespace-pre-wrap rounded-md bg-slate-950 p-3 text-[13px] leading-6 text-slate-100 sm:min-h-96 sm:p-4 sm:text-sm">
           {logs || "No logs yet."}
         </pre>
       </Panel>

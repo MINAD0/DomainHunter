@@ -66,10 +66,10 @@ export default function SavedPage() {
         <div className="divide-y divide-slate-200">
           {domains.length ? (
             domains.map((item) => (
-              <div key={item.domain} className="grid gap-4 p-4 lg:grid-cols-[1fr_300px_auto] lg:items-center">
-                <div>
+              <div key={item.domain} className="grid gap-4 p-4 xl:grid-cols-[1fr_300px_auto] xl:items-center">
+                <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-navy">{item.domain}</p>
+                    <p className="break-all font-semibold text-navy">{item.domain}</p>
                     <AvailableBadge />
                     <span className="text-sm font-semibold text-slate-500">Score {item.score}</span>
                   </div>
@@ -83,7 +83,7 @@ export default function SavedPage() {
                   onChange={(event) => setNotes((current) => ({ ...current, [item.domain]: event.target.value }))}
                   placeholder="Add note"
                 />
-                <div className="flex gap-2">
+                <div className="grid gap-2 sm:grid-cols-2 xl:flex">
                   <button
                     type="button"
                     className={`${buttonClass} border border-emerald-200 bg-emerald-50 px-3 text-emerald-800 hover:bg-emerald-100`}

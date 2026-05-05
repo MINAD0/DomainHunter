@@ -81,16 +81,45 @@ class BackendServiceTests(unittest.TestCase):
             tlds=[".com"],
             count=12,
             style=GeoStyle.PREMIUM_GEO,
-            ai_ideas=["Dallas-123", "amazon dallas cleaning", "Dallas Warehouse Cleaning"],
+            ai_ideas=[
+                "warehouse cleaning",
+                "facility cleaning",
+                "amazon dallas cleaning",
+            ],
         )
 
         names = [item.domain for item in domains]
         self.assertIn("dallasindustrialcleaning.com", names)
         self.assertIn("industrialcleaningdallas.com", names)
         self.assertIn("dallaswarehousecleaning.com", names)
-        self.assertNotIn("dallas-123.com", names)
+        self.assertIn("warehousecleaningdallas.com", names)
+        self.assertIn("dallasfacilitycleaning.com", names)
+        self.assertNotIn("facilitycleaning.com", names)
         self.assertFalse(any("amazon" in name for name in names))
         self.assertEqual(len(names), len(set(names)))
+
+    def test_ai_keyword_response_becomes_clean_seed_terms(self):
+        from backend.services.ai_generator import build_ai_seed_ideas_from_response
+
+        ideas = build_ai_seed_ideas_from_response(
+            content=json.dumps(
+                {
+                    "services": ["warehouse cleaning", "facility cleaning"],
+                    "modifiers": ["commercial", "industrial"],
+                    "related": ["janitorial", "plant maintenance"],
+                    "avoid": ["quotes", "cheap"],
+                }
+            ),
+            niche="Industrial Cleaning",
+            style="Premium Geo",
+            count=12,
+        )
+
+        self.assertIn("warehouse cleaning", ideas)
+        self.assertIn("facility cleaning", ideas)
+        self.assertIn("commercial cleaning", ideas)
+        self.assertIn("plant maintenance", ideas)
+        self.assertFalse(any("quotes" in idea or "cheap" in idea for idea in ideas))
 
     def test_domain_scoring_matches_geo_priority(self):
         from backend.services.domain_scoring import score_domain

@@ -83,24 +83,6 @@ export const homepageStats: readonly Stat[] = [
 
 export const homepageSections: readonly HomepageSection[] = [
   {
-    id: "timing",
-    eyebrow: "Timing",
-    title: "Good names disappear while slow workflows are still opening tabs.",
-    body: "Domain Hunter is built for solo hunters who care about timing, quality, and leverage. Instead of bouncing between brainstorm notes, registrar searches, and scattered checks, you can move through a tighter loop and stay closer to the names that still matter."
-  },
-  {
-    id: "workflow-edge",
-    eyebrow: "Workflow Edge",
-    title: "Generate ideas, check availability, and keep the signal.",
-    body: "The tool turns a messy search process into a simple operating rhythm: generate a focused batch, check it through your chosen provider chain, and keep only the open names. The result feels less like busywork and more like market filtering."
-  },
-  {
-    id: "solo-hunter",
-    eyebrow: "Built for Solo Hunters",
-    title: "A sharper tool for independent operators.",
-    body: "Whether you are searching for future brand assets, flipping candidates, or simply collecting better names before others do, the product is designed for people working alone who value speed, taste, and repeatable process."
-  },
-  {
     id: "get-started",
     eyebrow: "Get Started",
     title: "Start locally, get to open names quickly, and refine from there.",

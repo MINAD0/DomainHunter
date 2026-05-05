@@ -70,8 +70,8 @@ export default function SettingsPage() {
       </div>
 
       <div className="mt-4 grid min-w-0 max-w-full gap-6 xl:grid-cols-2">
-        <Panel className="p-5">
-          <h2 className="mb-4 text-lg font-semibold text-navy">AI config</h2>
+        <Panel className="p-4 sm:p-5">
+          <h2 className="mb-4 text-base font-semibold text-navy sm:text-lg">AI config</h2>
           <div className="grid gap-4">
             <Field label="Provider">
               <select className={inputClass} value={settings.ai.provider} onChange={(event) => update(["ai", "provider"], event.target.value)}>
@@ -106,8 +106,8 @@ export default function SettingsPage() {
           </div>
         </Panel>
 
-        <Panel className="p-5">
-          <h2 className="mb-4 text-lg font-semibold text-navy">Run defaults</h2>
+        <Panel className="p-4 sm:p-5">
+          <h2 className="mb-4 text-base font-semibold text-navy sm:text-lg">Run defaults</h2>
           <div className="grid gap-4">
             <Field label="Default TLDs">
               <input className={inputClass} value={tlds} onChange={(event) => setTlds(event.target.value)} />
@@ -144,9 +144,9 @@ export default function SettingsPage() {
           </div>
         </Panel>
 
-        <Panel className="p-5 xl:col-span-2">
-          <h2 className="mb-4 text-lg font-semibold text-navy">Domain check provider keys</h2>
-          <div className="grid gap-4 lg:grid-cols-4">
+        <Panel className="p-4 sm:p-5 xl:col-span-2">
+          <h2 className="mb-4 text-base font-semibold text-navy sm:text-lg">Domain check provider keys</h2>
+          <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
             <Field label="Namecheap API user">
               <input className={inputClass} value={settings.domain_providers.namecheap?.api_user ?? ""} onChange={(event) => update(["domain_providers", "namecheap", "api_user"], event.target.value)} />
             </Field>

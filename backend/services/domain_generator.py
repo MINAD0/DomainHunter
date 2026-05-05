@@ -53,7 +53,7 @@ def generate_geo_domains(
         for idea in ai_ideas or []:
             idea_words = _words(idea)
             if idea_words:
-                patterns.append(idea_words)
+                patterns.extend(_patterns_from_ai_idea(city_words, service, idea_words))
 
         for words in patterns:
             label = _clean_label(words)
@@ -112,6 +112,27 @@ def _words(value: str) -> list[str]:
     return [word.lower() for word in re.findall(r"[a-zA-Z]+", value)]
 
 
+def _patterns_from_ai_idea(
+    city_words: list[str],
+    service: list[str],
+    idea_words: list[str],
+) -> list[list[str]]:
+    if any(word in TRADEMARK_RISK_WORDS for word in idea_words):
+        return []
+    city_set = set(city_words)
+    if any(word in city_set for word in idea_words):
+        return [idea_words]
+
+    patterns = [
+        [*city_words, *idea_words],
+        [*idea_words, *city_words],
+    ]
+    if service and idea_words[-len(service) :] != service:
+        patterns.append([*city_words, *idea_words, *service])
+        patterns.append([*idea_words, *service, *city_words])
+    return patterns
+
+
 def _clean_label(words: list[str]) -> str | None:
     clean_words = [_slug(word) for word in words]
     clean_words = [word for word in clean_words if word]
@@ -140,4 +161,3 @@ def _normalize_tld(value: str) -> str:
     if not cleaned.startswith("."):
         cleaned = f".{cleaned}"
     return cleaned
-
