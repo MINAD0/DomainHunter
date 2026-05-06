@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import os
+import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -19,6 +21,9 @@ class AvailabilityResult:
     status: DomainStatus
     source: str
     detail: str = ""
+    price: float | None = None
+    currency: str | None = None
+    purchase_url: str | None = None
 
 
 class AvailabilityProvider(Protocol):
@@ -119,8 +124,17 @@ class NamecheapProvider:
         check = root.find(".//{*}DomainCheckResult")
         if check is None:
             return AvailabilityResult(domain, DomainStatus.UNKNOWN, self.name, "Missing DomainCheckResult")
+        premium_price = _coerce_price(
+            check.attrib.get("PremiumRegistrationPrice") or check.attrib.get("PremiumRenewalPrice")
+        )
         if check.attrib.get("IsPremiumName", "").lower() == "true":
-            return AvailabilityResult(domain, DomainStatus.PREMIUM, self.name)
+            return AvailabilityResult(
+                domain,
+                DomainStatus.PREMIUM,
+                self.name,
+                price=premium_price,
+                currency="USD" if premium_price is not None else None,
+            )
         available = check.attrib.get("Available", "").lower()
         if available == "true":
             return AvailabilityResult(domain, DomainStatus.AVAILABLE, self.name)
@@ -224,11 +238,135 @@ class GoDaddyProvider:
             data = response.json()
         if "available" not in data:
             return AvailabilityResult(domain, DomainStatus.UNKNOWN, self.name)
+        price = _coerce_price(data.get("price"))
+        currency = data.get("currency") or data.get("currencyCode") or ("USD" if price is not None else None)
         return AvailabilityResult(
             domain,
             DomainStatus.AVAILABLE if data["available"] else DomainStatus.TAKEN,
             self.name,
+            price=price,
+            currency=currency,
         )
+
+
+class DynadotProvider:
+    name = "dynadot"
+
+    def __init__(self, *, api_key: str, currency: str = "USD", timeout_seconds: float = 15):
+        self.api_key = api_key
+        self.currency = currency
+        self.timeout_seconds = timeout_seconds
+
+    async def check(self, domain: str) -> AvailabilityResult:
+        params = {
+            "key": self.api_key,
+            "command": "search",
+            "domain0": domain,
+            "show_price": "1",
+            "currency": self.currency,
+        }
+        async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+            response = await client.get("https://api.dynadot.com/api3.json", params=params)
+            response.raise_for_status()
+            data = response.json()
+        results = (data.get("SearchResponse") or {}).get("SearchResults") or []
+        if not results:
+            return AvailabilityResult(domain, DomainStatus.UNKNOWN, self.name, "Missing search results")
+        result = results[0]
+        available = str(result.get("Available", "")).lower()
+        price_text = str(result.get("Price", ""))
+        price, currency = _parse_embedded_price(price_text)
+        if available == "yes":
+            status = DomainStatus.PREMIUM if "premium" in price_text.lower() and "not premium" not in price_text.lower() else DomainStatus.AVAILABLE
+            return AvailabilityResult(
+                domain,
+                status,
+                self.name,
+                price=price,
+                currency=currency or self.currency,
+                detail=price_text if price_text and price is None else "",
+            )
+        if available == "no":
+            return AvailabilityResult(domain, DomainStatus.TAKEN, self.name)
+        return AvailabilityResult(domain, DomainStatus.UNKNOWN, self.name, price_text)
+
+
+class NameComProvider:
+    name = "namecom"
+
+    def __init__(self, *, username: str, token: str, use_sandbox: bool = False, timeout_seconds: float = 15):
+        self.username = username
+        self.token = token
+        self.use_sandbox = use_sandbox
+        self.timeout_seconds = timeout_seconds
+
+    async def check(self, domain: str) -> AvailabilityResult:
+        auth = base64.b64encode(f"{self.username}:{self.token}".encode("utf-8")).decode("ascii")
+        base_url = "https://api.dev.name.com" if self.use_sandbox else "https://api.name.com"
+        headers = {
+            "Authorization": f"Basic {auth}",
+            "Content-Type": "application/json",
+        }
+        payload = {"domainNames": [domain]}
+        async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+            response = await client.post(f"{base_url}/core/v1/domains:checkAvailability", json=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+        results = data.get("results") or []
+        if not results:
+            return AvailabilityResult(domain, DomainStatus.UNKNOWN, self.name, "Missing results")
+        result = results[0]
+        purchasable = bool(result.get("purchasable"))
+        premium = bool(result.get("premium"))
+        price = _coerce_price(result.get("purchasePrice"))
+        renewal_price = _coerce_price(result.get("renewalPrice"))
+        detail = str(result.get("reason") or "")
+        if purchasable:
+            return AvailabilityResult(
+                domain,
+                DomainStatus.PREMIUM if premium else DomainStatus.AVAILABLE,
+                self.name,
+                detail=detail,
+                price=price,
+                currency="USD" if price is not None or renewal_price is not None else None,
+            )
+        return AvailabilityResult(domain, DomainStatus.TAKEN, self.name, detail or "Not purchasable")
+
+
+class SpaceshipProvider:
+    name = "spaceship"
+
+    def __init__(self, *, api_key: str, api_secret: str, timeout_seconds: float = 15):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.timeout_seconds = timeout_seconds
+
+    async def check(self, domain: str) -> AvailabilityResult:
+        headers = {"X-API-Key": self.api_key, "X-API-Secret": self.api_secret}
+        async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+            response = await client.get(f"https://spaceship.dev/api/v1/domains/{domain}/available", headers=headers)
+            response.raise_for_status()
+            data = response.json()
+        result = _extract_spaceship_result(data)
+        state = str(result.get("result") or result.get("status") or "").lower()
+        pricing = result.get("premiumPricing") or result.get("pricing") or []
+        register_pricing = next(
+            (item for item in pricing if str(item.get("operation", "")).lower() == "register"),
+            pricing[0] if pricing else None,
+        )
+        price = _coerce_price(register_pricing.get("price")) if isinstance(register_pricing, dict) else None
+        currency = register_pricing.get("currency") if isinstance(register_pricing, dict) else None
+        if state in {"available", "purchasable"}:
+            return AvailabilityResult(
+                domain,
+                DomainStatus.PREMIUM if price is not None and pricing else DomainStatus.AVAILABLE,
+                self.name,
+                price=price,
+                currency=currency,
+            )
+        if state in {"registered", "taken", "unavailable"}:
+            return AvailabilityResult(domain, DomainStatus.TAKEN, self.name)
+        return AvailabilityResult(domain, DomainStatus.UNKNOWN, self.name, state or "Unknown Spaceship response")
 
 
 class RapidApiProvider:
@@ -251,7 +389,7 @@ class RapidApiProvider:
         return AvailabilityResult(domain, state, self.name)
 
 
-def build_checker(settings: dict, *, timeout_seconds: float = 15) -> DomainChecker:
+def build_provider_list(settings: dict, *, timeout_seconds: float = 15, include_fallbacks: bool = True) -> list[AvailabilityProvider]:
     domain_settings = settings.get("domain_providers", {})
     providers: list[AvailabilityProvider] = []
 
@@ -268,6 +406,37 @@ def build_checker(settings: dict, *, timeout_seconds: float = 15) -> DomainCheck
     if godaddy.get("api_key") and godaddy.get("api_secret"):
         providers.append(GoDaddyProvider(**godaddy, timeout_seconds=timeout_seconds))
 
+    dynadot = domain_settings.get("dynadot", {})
+    if dynadot.get("api_key"):
+        providers.append(
+            DynadotProvider(
+                api_key=dynadot["api_key"],
+                currency=dynadot.get("currency", "USD"),
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
+    namecom = domain_settings.get("namecom", {})
+    if namecom.get("username") and namecom.get("token"):
+        providers.append(
+            NameComProvider(
+                username=namecom["username"],
+                token=namecom["token"],
+                use_sandbox=str(namecom.get("use_sandbox", "false")).lower() == "true",
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
+    spaceship = domain_settings.get("spaceship", {})
+    if spaceship.get("api_key") and spaceship.get("api_secret"):
+        providers.append(
+            SpaceshipProvider(
+                api_key=spaceship["api_key"],
+                api_secret=spaceship["api_secret"],
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
     rapidapi = domain_settings.get("rapidapi", {})
     if rapidapi.get("api_key") and rapidapi.get("host") and rapidapi.get("url"):
         providers.append(
@@ -280,7 +449,17 @@ def build_checker(settings: dict, *, timeout_seconds: float = 15) -> DomainCheck
             )
         )
 
-    providers.extend([RdapProvider(timeout_seconds=timeout_seconds), WhoisProvider()])
+    if include_fallbacks:
+        providers.extend([RdapProvider(timeout_seconds=timeout_seconds), WhoisProvider()])
+    return providers
+
+
+def build_checker(settings: dict, *, timeout_seconds: float = 15, include_fallbacks: bool = True) -> DomainChecker:
+    providers = build_provider_list(
+        settings,
+        timeout_seconds=timeout_seconds,
+        include_fallbacks=include_fallbacks,
+    )
     return DomainChecker(
         providers,
         delay_seconds=float(settings.get("delay_between_checks", 0.25)),
@@ -301,3 +480,32 @@ def _parse_common_availability(data: dict) -> DomainStatus:
         return DomainStatus.PREMIUM
     return DomainStatus.UNKNOWN
 
+
+def _coerce_price(value) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number > 100000:
+        number = number / 1_000_000
+    return round(number, 2)
+
+
+def _parse_embedded_price(value: str) -> tuple[float | None, str | None]:
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s+in\s+([A-Z]{3})", value)
+    if not match:
+        return None, None
+    return round(float(match.group(1)), 2), match.group(2)
+
+
+def _extract_spaceship_result(data: dict) -> dict:
+    if isinstance(data.get("domain"), dict):
+        return data["domain"]
+    domains = data.get("domains")
+    if isinstance(domains, list) and domains:
+        first = domains[0]
+        if isinstance(first, dict):
+            return first
+    return data

@@ -96,6 +96,55 @@ class ResultsResponse(BaseModel):
     domains: list[DomainResult]
 
 
+class DomainSearchRequest(BaseModel):
+    domain: str
+
+    @field_validator("domain")
+    @classmethod
+    def require_domain(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if not cleaned:
+            raise ValueError("Domain is required.")
+        return cleaned
+
+
+class BulkDomainSearchRequest(BaseModel):
+    domains: list[str]
+
+    @field_validator("domains")
+    @classmethod
+    def require_domains(cls, value: list[str]) -> list[str]:
+        domains = [item.strip() for item in value if item.strip()]
+        if not domains:
+            raise ValueError("At least one domain is required.")
+        return domains
+
+
+class RegistrarOffer(BaseModel):
+    provider: str
+    status: DomainStatus
+    price: float | None = None
+    currency: str | None = None
+    purchase_url: str | None = None
+    detail: str = ""
+    is_best: bool = False
+
+
+class DomainSearchResult(BaseModel):
+    domain: str
+    available: bool
+    best_offer: RegistrarOffer | None = None
+    offers: list[RegistrarOffer]
+
+
+class DomainSearchResponse(BaseModel):
+    result: DomainSearchResult
+
+
+class BulkDomainSearchResponse(BaseModel):
+    results: list[DomainSearchResult]
+
+
 class DashboardStats(BaseModel):
     total_domains_generated: int
     available_domains_found: int
@@ -110,4 +159,3 @@ class Settings(BaseModel):
     max_checks_per_run: int = Field(default=50, ge=1, le=1000)
     delay_between_checks: float = Field(default=0.25, ge=0, le=10)
     registrar_base_url: str = "https://www.namecheap.com/domains/registration/results/?domain="
-

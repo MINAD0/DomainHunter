@@ -1,0 +1,15 @@
+.git
+.gitignore
+.superpowers
+.env
+.env.*
+__pycache__
+*.py[cod]
+tmp*/
+output/
+backend-dev.log
+backend-dev.err.log
+frontend-dev.log
+frontend-dev.err.log
+*.log
+tests/.available-test.txt

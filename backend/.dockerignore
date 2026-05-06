@@ -1,0 +1,13 @@
+__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+data/*.tmp
+data/logs.txt
+data/available_results.csv
+data/saved_domains.json
+data/settings.json
+data/*.bak
+tmp*/
+*.log

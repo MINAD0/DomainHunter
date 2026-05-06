@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe2, Languages, Menu, PanelLeft } from "lucide-react";
+import { Languages, Menu, PanelLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   headerMeta,
@@ -64,8 +65,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }`}
       >
         <div className="flex h-16 items-center gap-3 border-b border-cyan-300/10 px-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-cyan-200/25 bg-blue text-carbon shadow-glow">
-            <Globe2 className="h-5 w-5" aria-hidden="true" />
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-cyan-200/25 bg-white shadow-glow">
+            <Image
+              src="/domainhunter-icon.png"
+              alt="Domain Hunter logo"
+              width={40}
+              height={40}
+              className="h-full w-full object-cover"
+              priority
+            />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100/55 sm:text-sm">

@@ -13,6 +13,10 @@ describe("workspace navigation", () => {
     expect(primaryNavItems.map((item) => item.href)).toContain("/app/scoring");
   });
 
+  it("adds a domain search route to the primary workspace menu", () => {
+    expect(primaryNavItems.map((item) => item.href)).toContain("/app/search");
+  });
+
   it("keeps settings as a secondary menu item", () => {
     expect(settingsNavItem.href).toBe("/app/settings");
   });
@@ -22,6 +26,14 @@ describe("workspace navigation", () => {
       eyebrow: "Workspace",
       title: "Domain Discovery",
       subtitle: "Generate geo domains, score them, and check live availability."
+    });
+  });
+
+  it("adds compact search header copy for domain lookup", () => {
+    expect(headerMeta["/app/search"]).toEqual({
+      eyebrow: "Workspace",
+      title: "Domain Search",
+      subtitle: "Compare providers, inspect availability, and open the best offer."
     });
   });
 

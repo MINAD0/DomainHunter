@@ -60,6 +60,35 @@ Open:
 
 Backend data is stored in the `domain_hunter_data` Docker volume at `/app/backend/data`.
 
+## Publish To Docker Hub
+
+Build the images locally with tags that match your Docker Hub account:
+
+```bash
+docker build -t yourdockerhub/domain-hunter-backend:latest ./backend
+docker build --build-arg NEXT_PUBLIC_API_BASE_URL=https://your-backend-host.example -t yourdockerhub/domain-hunter-frontend:latest ./frontend
+```
+
+Log in and push:
+
+```bash
+docker login
+docker push yourdockerhub/domain-hunter-backend:latest
+docker push yourdockerhub/domain-hunter-frontend:latest
+```
+
+For a Compose-based local check before publishing, keep using:
+
+```bash
+docker compose up --build
+```
+
+Notes:
+
+- Publish the backend and frontend as separate images.
+- Keep `.env`, API keys, and runtime data out of the images.
+- If you use a non-local backend URL in production, set `NEXT_PUBLIC_API_BASE_URL` at frontend build time.
+
 ## Configure API Keys
 
 You can add keys in the Settings page after the app starts. You can also seed optional values in `.env`.

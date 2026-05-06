@@ -27,3 +27,35 @@ export function providerApiKeyLabel(provider: string): string {
 export function selectedProviderApiKey(settings: SettingsPayload): string {
   return settings.ai.api_keys[settings.ai.provider] ?? "";
 }
+
+export function hasConfiguredSelectedAiProvider(settings: SettingsPayload): boolean {
+  return Boolean(selectedProviderApiKey(settings).trim());
+}
+
+export function hasAnyConfiguredCheckProvider(settings: SettingsPayload): boolean {
+  return Object.values(settings.domain_providers).some((provider) =>
+    Object.entries(provider).some(([key, value]) => {
+      if (key === "currency" || key === "use_sandbox" || key === "domain_param") {
+        return false;
+      }
+      return Boolean(String(value ?? "").trim());
+    })
+  );
+}
+
+export function hasAnyConfiguredOfficialSearchProvider(settings: SettingsPayload): boolean {
+  return [
+    hasAll(settings.domain_providers.godaddy, ["api_key", "api_secret"]),
+    hasAll(settings.domain_providers.namecheap, ["api_user", "api_key", "username", "client_ip"]),
+    hasAll(settings.domain_providers.dynadot, ["api_key"]),
+    hasAll(settings.domain_providers.namecom, ["username", "token"]),
+    hasAll(settings.domain_providers.spaceship, ["api_key", "api_secret"])
+  ].some(Boolean);
+}
+
+function hasAll(provider: Record<string, string> | undefined, keys: string[]): boolean {
+  if (!provider) {
+    return false;
+  }
+  return keys.every((key) => Boolean(String(provider[key] ?? "").trim()));
+}

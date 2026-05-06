@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ChevronDown, Play, RefreshCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -14,6 +15,10 @@ import {
   toggleAllItems,
   validateGeneratorForm
 } from "@/lib/domain";
+import {
+  hasAnyConfiguredCheckProvider,
+  hasConfiguredSelectedAiProvider
+} from "@/lib/settings";
 import { DomainTable } from "@/components/domain-table";
 import { Field, PageTitle, Panel, StatusMessage, buttonClass, inputClass } from "@/components/ui";
 
@@ -76,6 +81,14 @@ export default function GeneratorPage() {
     () => allItemsSelected(cities, selectedCities),
     [cities, selectedCities]
   );
+  const aiConfigured = useMemo(
+    () => (settings ? hasConfiguredSelectedAiProvider(settings) : false),
+    [settings]
+  );
+  const checkProviderConfigured = useMemo(
+    () => (settings ? hasAnyConfiguredCheckProvider(settings) : false),
+    [settings]
+  );
 
   function toggleCity(city: string) {
     setSelectedCities((current) =>
@@ -125,6 +138,29 @@ export default function GeneratorPage() {
   return (
     <>
       <PageTitle eyebrow="Domain Discovery" title="Discover, score, and check GeoDomains" />
+
+      {settings ? (
+        <div className="mb-4 space-y-3">
+          {!aiConfigured ? (
+            <StatusMessage type="error">
+              AI provider is not configured yet. Keyword expansion works best after adding your AI key in{" "}
+              <Link className="font-semibold underline" href="/app/settings">
+                Settings
+              </Link>
+              .
+            </StatusMessage>
+          ) : null}
+          {!checkProviderConfigured ? (
+            <StatusMessage type="error">
+              No domain check provider is configured yet. Availability checks will fall back to RDAP/WHOIS until you add a provider in{" "}
+              <Link className="font-semibold underline" href="/app/settings">
+                Settings
+              </Link>
+              .
+            </StatusMessage>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="grid max-w-full min-w-0 items-start gap-6 xl:grid-cols-[26rem_minmax(0,_1fr)] 2xl:grid-cols-[28rem_minmax(0,_1fr)]">
         <Panel className="w-full overflow-hidden p-4 sm:p-5">

@@ -168,6 +168,30 @@ export default function SettingsPage() {
             <Field label="GoDaddy API secret">
               <input className={inputClass} value={settings.domain_providers.godaddy?.api_secret ?? ""} onChange={(event) => update(["domain_providers", "godaddy", "api_secret"], event.target.value)} />
             </Field>
+            <Field label="Dynadot API key">
+              <input className={inputClass} value={settings.domain_providers.dynadot?.api_key ?? ""} onChange={(event) => update(["domain_providers", "dynadot", "api_key"], event.target.value)} />
+            </Field>
+            <Field label="Dynadot currency">
+              <input className={inputClass} value={settings.domain_providers.dynadot?.currency ?? "USD"} onChange={(event) => update(["domain_providers", "dynadot", "currency"], event.target.value)} />
+            </Field>
+            <Field label="name.com username">
+              <input className={inputClass} value={settings.domain_providers.namecom?.username ?? ""} onChange={(event) => update(["domain_providers", "namecom", "username"], event.target.value)} />
+            </Field>
+            <Field label="name.com token">
+              <input className={inputClass} value={settings.domain_providers.namecom?.token ?? ""} onChange={(event) => update(["domain_providers", "namecom", "token"], event.target.value)} />
+            </Field>
+            <Field label="name.com sandbox">
+              <select className={inputClass} value={settings.domain_providers.namecom?.use_sandbox ?? "false"} onChange={(event) => update(["domain_providers", "namecom", "use_sandbox"], event.target.value)}>
+                <option value="false">Production</option>
+                <option value="true">Sandbox</option>
+              </select>
+            </Field>
+            <Field label="Spaceship API key">
+              <input className={inputClass} value={settings.domain_providers.spaceship?.api_key ?? ""} onChange={(event) => update(["domain_providers", "spaceship", "api_key"], event.target.value)} />
+            </Field>
+            <Field label="Spaceship API secret">
+              <input className={inputClass} value={settings.domain_providers.spaceship?.api_secret ?? ""} onChange={(event) => update(["domain_providers", "spaceship", "api_secret"], event.target.value)} />
+            </Field>
             <Field label="RapidAPI key">
               <input className={inputClass} value={settings.domain_providers.rapidapi?.api_key ?? ""} onChange={(event) => update(["domain_providers", "rapidapi", "api_key"], event.target.value)} />
             </Field>

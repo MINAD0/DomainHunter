@@ -9,8 +9,12 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.models import (
+    BulkDomainSearchRequest,
+    BulkDomainSearchResponse,
     CheckRequest,
     DashboardStats,
+    DomainSearchRequest,
+    DomainSearchResponse,
     GenerateAndCheckRequest,
     GenerateResponse,
     ResultsResponse,
@@ -21,6 +25,7 @@ from backend.models import (
 from backend.services.ai_generator import generate_ai_domain_ideas
 from backend.services.domain_checker import build_checker
 from backend.services.domain_generator import generate_geo_domains
+from backend.services.domain_search import search_domain, search_domains
 from backend.services.storage import Storage, load_city_catalog
 
 
@@ -134,6 +139,23 @@ def create_app(data_dir: Path | None = None) -> FastAPI:
         storage.append_log(f"Checked {len(request.domains)} domains; {len(available)} available.")
         return ResultsResponse(domains=results)
 
+    @app.post("/search-domain", response_model=DomainSearchResponse)
+    async def search_single_domain(request: DomainSearchRequest) -> DomainSearchResponse:
+        settings = storage.load_settings()
+        result = await search_domain(request.domain, settings)
+        storage.append_log(f"Searched domain {result.domain}; {len(result.offers)} provider offers checked.")
+        return DomainSearchResponse(result=result)
+
+    @app.post("/search-domains", response_model=BulkDomainSearchResponse)
+    async def search_bulk_domains(request: BulkDomainSearchRequest) -> BulkDomainSearchResponse:
+        settings = storage.load_settings()
+        results = await search_domains(
+            request.domains[: int(settings.get("max_checks_per_run", 50))],
+            settings,
+        )
+        storage.append_log(f"Bulk searched {len(results.results)} domains.")
+        return results
+
     @app.post("/generate-and-check", response_model=ResultsResponse)
     async def generate_and_check(request: GenerateAndCheckRequest) -> ResultsResponse:
         settings = storage.load_settings()
@@ -211,4 +233,3 @@ async def _generate_ideas_for_request(settings: dict, request: GenerateAndCheckR
 
 
 app = create_app()
-

@@ -77,6 +77,9 @@ export function emptySettings(): SettingsPayload {
       },
       whoisxml: { api_key: "" },
       godaddy: { api_key: "", api_secret: "" },
+      dynadot: { api_key: "", currency: "USD" },
+      namecom: { username: "", token: "", use_sandbox: "false" },
+      spaceship: { api_key: "", api_secret: "" },
       rapidapi: {
         api_key: "",
         host: "",

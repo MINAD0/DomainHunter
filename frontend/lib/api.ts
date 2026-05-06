@@ -42,6 +42,31 @@ export type DashboardStats = {
   top_saved_domains: SavedDomain[];
 };
 
+export type RegistrarOffer = {
+  provider: string;
+  status: DomainStatus;
+  price: number | null;
+  currency: string | null;
+  purchase_url: string | null;
+  detail: string;
+  is_best: boolean;
+};
+
+export type DomainSearchResult = {
+  domain: string;
+  available: boolean;
+  best_offer: RegistrarOffer | null;
+  offers: RegistrarOffer[];
+};
+
+export type DomainSearchResponse = {
+  result: DomainSearchResult;
+};
+
+export type BulkDomainSearchResponse = {
+  results: DomainSearchResult[];
+};
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 export async function apiGet<T>(path: string): Promise<T> {
@@ -82,4 +107,3 @@ export async function apiDelete(path: string): Promise<void> {
 export function exportUrl(format: "csv" | "txt"): string {
   return `${API_BASE}/export?format=${format}`;
 }
-

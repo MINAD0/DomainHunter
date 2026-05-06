@@ -191,3 +191,70 @@ class BackendServiceTests(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].status, DomainStatus.AVAILABLE)
         self.assertEqual(results[0].source, "available")
+
+    def test_domain_search_normalizes_single_domain_input(self):
+        from backend.services.domain_search import normalize_domain_input
+
+        self.assertEqual(
+            normalize_domain_input(" https://www.ExampleDomain.com/pricing?x=1 "),
+            "exampledomain.com",
+        )
+
+    def test_domain_search_picks_lowest_available_priced_offer(self):
+        from backend.models import DomainStatus, RegistrarOffer
+        from backend.services.domain_search import pick_best_offer
+
+        best = pick_best_offer(
+            [
+                RegistrarOffer(
+                    provider="namecheap",
+                    status=DomainStatus.AVAILABLE,
+                    price=12.49,
+                    currency="USD",
+                    purchase_url="https://namecheap.example/domain",
+                    detail="",
+                ),
+                RegistrarOffer(
+                    provider="godaddy",
+                    status=DomainStatus.AVAILABLE,
+                    price=9.99,
+                    currency="USD",
+                    purchase_url="https://godaddy.example/domain",
+                    detail="",
+                ),
+                RegistrarOffer(
+                    provider="rdap",
+                    status=DomainStatus.AVAILABLE,
+                    price=None,
+                    currency=None,
+                    purchase_url=None,
+                    detail="",
+                ),
+            ]
+        )
+
+        self.assertIsNotNone(best)
+        self.assertEqual(best.provider, "godaddy")
+        self.assertEqual(best.price, 9.99)
+
+    def test_dynadot_price_string_parser_extracts_amount_and_currency(self):
+        from backend.services.domain_checker import _parse_embedded_price
+
+        self.assertEqual(_parse_embedded_price("44.00 in USD and domain is not premium"), (44.0, "USD"))
+
+    def test_build_provider_list_adds_new_official_pricing_providers(self):
+        from backend.services.domain_checker import build_provider_list
+
+        providers = build_provider_list(
+            {
+                "domain_providers": {
+                    "dynadot": {"api_key": "dynadot-key", "currency": "USD"},
+                    "namecom": {"username": "demo", "token": "secret", "use_sandbox": "true"},
+                    "spaceship": {"api_key": "ship-key", "api_secret": "ship-secret"},
+                },
+                "delay_between_checks": 0,
+            },
+            include_fallbacks=False,
+        )
+
+        self.assertEqual([provider.name for provider in providers], ["dynadot", "namecom", "spaceship"])

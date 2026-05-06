@@ -5,6 +5,7 @@ import {
   ListChecks,
   Scale,
   ScrollText,
+  Search,
   Settings,
   Sparkles
 } from "lucide-react";
@@ -25,6 +26,7 @@ export const LANGUAGE_OPTIONS = [
 export const primaryNavItems: WorkspaceNavItem[] = [
   { href: "/app", aliases: ["/"], label: "Dashboard", icon: Gauge },
   { href: "/app/generator", aliases: ["/generator"], label: "Geo Generator", icon: Sparkles },
+  { href: "/app/search", aliases: ["/search"], label: "Domain Search", icon: Search },
   { href: "/app/scoring", aliases: ["/scoring"], label: "Scoring", icon: Scale },
   { href: "/app/results", aliases: ["/results"], label: "Results", icon: ListChecks },
   { href: "/app/saved", aliases: ["/saved"], label: "Saved Domains", icon: Bookmark },
@@ -63,6 +65,11 @@ export const headerMeta: Record<string, { eyebrow: string; title: string; subtit
     eyebrow: "Workspace",
     title: "Domain Discovery",
     subtitle: "Generate geo domains, score them, and check live availability."
+  },
+  "/app/search": {
+    eyebrow: "Workspace",
+    title: "Domain Search",
+    subtitle: "Compare providers, inspect availability, and open the best offer."
   },
   "/app/scoring": {
     eyebrow: "Workspace",

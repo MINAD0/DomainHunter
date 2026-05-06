@@ -1,5 +1,11 @@
 __pycache__/
+**/__pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 tmp*/
 available.txt
 tests/.available-test.txt
@@ -8,8 +14,11 @@ tests/.available-test.txt
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+frontend/coverage/
+frontend/.turbo/
 frontend/.env.local
 backend/data/*.tmp
 output/
 *-dev.log
 *-dev.err.log
+*.log
