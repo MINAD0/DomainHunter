@@ -1,125 +1,223 @@
 # DomainHunter
 
-DomainHunter is a local-first Docker web app for generating, checking, saving, and exporting available GeoDomains for resale research.
+DomainHunter is a local Docker app for finding domain opportunities.
 
-Example target:
+It helps you:
+- generate geo-targeted domain ideas
+- check availability
+- compare registrar search results
+- save good domains
+- export your research
 
-```txt
-City: Dallas
-Niche: Industrial Cleaning
-TLD: .com
-Result: dallasindustrialcleaning.com
-```
+Everything runs on your machine.  
+No login. No database. No hosted account required.
 
-The app has no login, no database, and no hosted service requirement. It runs on your machine with a Next.js dashboard, a FastAPI backend, provider-based domain availability checks, and local JSON/CSV/TXT storage.
+---
 
-## What It Does
+## What You Can Do
 
-- Generates GeoDomain ideas from country, cities, niche, TLDs, count, and style.
-- Supports Exact Match, Service Based, Lead Generation, and Premium Geo styles.
-- Uses AI ideas when configured, with deterministic local fallbacks when keys are missing.
-- Checks availability through Namecheap, WhoisXML, optional GoDaddy/RapidAPI, RDAP, and WHOIS fallback.
-- Shows available domains only in the main generator results workflow.
-- Scores domains from 0 to 100 using TLD, city placement, service clarity, length, commercial intent, and readability.
-- Saves domains with notes and exports CSV/TXT.
-- Stores settings, results, saved domains, and logs in local files.
+- Generate domains from:
+  - country
+  - city
+  - niche
+  - TLDs
+  - style
+- Check available domains
+- Search a single domain across configured providers
+- Run bulk domain search
+- Save domains with notes
+- Export results as CSV or TXT
 
-## Screens
+---
 
-- Dashboard: totals, available count, last scan, top saved domains.
-- Geo Generator: country/city selector, niche, TLDs, count, style, generate-and-check action.
-- Results: available-domain table with copy, save, export, and registrar actions.
-- Saved Domains: local saved list, notes, remove, export.
-- Settings: AI provider config, availability-provider keys, defaults, limits, registrar URL.
-- Logs: local run history.
+## Before You Start
 
-## Tech Stack
+You only need:
 
-- Frontend: Next.js, React, Tailwind CSS, lucide-react.
-- Backend: FastAPI, Pydantic, httpx, python-whois.
-- AI providers: OpenAI, Gemini, Claude, OpenRouter, custom endpoint.
-- Domain providers: Namecheap, WhoisXML, RDAP, WHOIS fallback, optional GoDaddy/RapidAPI.
-- Storage: local JSON, CSV, and text files.
-- Runtime: Docker Compose.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine with Compose
 
-## Run With Docker
+That is enough to run the app.
 
-Prerequisites:
+If you want better results, you should also add API keys later in the **Settings** page for:
+- AI providers
+- domain-check providers
+- registrar pricing/search providers
 
-- Docker Desktop or Docker Engine with Compose.
+The app can still run without keys, but some features will fall back to weaker checks.
+
+---
+
+## Quick Start
+
+From the project folder:
 
 ```bash
 cp .env.example .env
 docker compose up --build
 ```
 
-Open:
+Then open:
 
-- Frontend: http://localhost:3000
-- Backend health: http://localhost:8000/health
+- App: [http://localhost:3000](http://localhost:3000)
+- Backend health: [http://localhost:8000/health](http://localhost:8000/health)
 
-Backend data is stored in the `domain_hunter_data` Docker volume at `/app/backend/data`.
+---
 
-## Publish To Docker Hub
+## First-Time Setup
 
-Build the images locally with tags that match your Docker Hub account:
+After the app starts:
 
-```bash
-docker build -t yourdockerhub/domain-hunter-backend:latest ./backend
-docker build --build-arg NEXT_PUBLIC_API_BASE_URL=https://your-backend-host.example -t yourdockerhub/domain-hunter-frontend:latest ./frontend
-```
+1. Open **Settings**
+2. Add the provider keys you want to use
+3. Save settings
+4. Go to **Geo Generator** or **Domain Search**
 
-Log in and push:
+Recommended order:
 
-```bash
-docker login
-docker push yourdockerhub/domain-hunter-backend:latest
-docker push yourdockerhub/domain-hunter-frontend:latest
-```
+1. Add an AI provider key
+2. Add at least one domain availability provider
+3. Add at least one official registrar search provider
 
-For a Compose-based local check before publishing, keep using:
+---
+
+## Main Pages
+
+### Dashboard
+Quick summary of:
+- total domains generated
+- available domains found
+- last scan
+- top saved domains
+
+### Geo Generator
+Use this to:
+- choose country and cities
+- choose a niche
+- select TLDs
+- generate and check domain ideas
+
+### Domain Search
+Use this to:
+- search one domain
+- search many domains at once
+- compare configured providers
+- open the best available source
+
+### Results
+Use this to:
+- review available domains
+- copy domains
+- save domains
+- export data
+
+### Saved Domains
+Use this to:
+- keep a shortlist
+- add notes
+- remove saved domains
+
+### Settings
+Use this to configure:
+- AI providers
+- domain check providers
+- registrar search providers
+- default TLDs
+- max checks per run
+
+### Logs
+Use this to inspect:
+- provider activity
+- fallbacks
+- local run history
+
+---
+
+## Providers
+
+### AI Providers
+
+Supported:
+- OpenRouter
+- OpenAI
+- Gemini
+- Claude
+- Custom endpoint
+
+### Domain Availability Providers
+
+Supported:
+- Namecheap
+- WhoisXML
+- GoDaddy
+- RapidAPI
+- RDAP fallback
+- WHOIS fallback
+
+### Official Search / Pricing Providers
+
+Supported in the app:
+- GoDaddy
+- Namecheap
+- Dynadot
+- name.com
+- Spaceship
+
+If none of these are configured, search still works, but price comparison will be limited.
+
+---
+
+## Local Data
+
+The app stores local data for you automatically.
+
+Files used by the backend:
+- `settings.json`
+- `saved_domains.json`
+- `available_results.csv`
+- `logs.txt`
+
+With Docker Compose, this data is stored in the `domain_hunter_data` volume.
+
+---
+
+## Useful Commands
+
+### Start
 
 ```bash
 docker compose up --build
 ```
 
-Notes:
+### Start in background
 
-- Publish the backend and frontend as separate images.
-- Keep `.env`, API keys, and runtime data out of the images.
-- If you use a non-local backend URL in production, set `NEXT_PUBLIC_API_BASE_URL` at frontend build time.
+```bash
+docker compose up -d --build
+```
 
-## Configure API Keys
+### Stop
 
-You can add keys in the Settings page after the app starts. You can also seed optional values in `.env`.
+```bash
+docker compose down
+```
 
-Supported AI settings:
+### Rebuild after changes
 
-- OpenRouter API key and model.
-- OpenAI API key and model.
-- Gemini API key and model.
-- Claude API key and model.
-- Custom endpoint and optional bearer key.
+```bash
+docker compose up -d --build
+```
 
-Supported domain-check settings:
-
-- Namecheap API user, key, username, and client IP.
-- WhoisXML API key.
-- GoDaddy API key and secret.
-- RapidAPI key, host, URL, and domain parameter.
-
-If provider keys are missing, DomainHunter still attempts RDAP and WHOIS fallback checks.
+---
 
 ## Local Development
 
-Backend:
+### Backend
 
 ```bash
 python -m pip install -r backend/requirements.txt
 uvicorn backend.main:app --reload --port 8000
 ```
 
-Frontend:
+### Frontend
 
 ```bash
 cd frontend
@@ -128,22 +226,27 @@ npm run dev
 ```
 
 Development URLs:
+- App: [http://localhost:3000](http://localhost:3000)
+- API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8000
-- OpenAPI docs: http://localhost:8000/docs
+---
 
 ## API Endpoints
+
+Main endpoints:
 
 - `GET /health`
 - `GET /dashboard`
 - `GET /settings`
 - `POST /settings`
 - `GET /countries`
-- `GET /cities?country=United States`
+- `GET /cities`
+- `GET /niches`
 - `POST /generate`
 - `POST /check`
 - `POST /generate-and-check`
+- `POST /search-domain`
+- `POST /search-domains`
 - `GET /results`
 - `GET /saved`
 - `POST /saved`
@@ -151,53 +254,26 @@ Development URLs:
 - `GET /export?format=csv|txt`
 - `GET /logs`
 
-## Tests
+---
 
-Backend and preserved legacy CLI tests:
+## Notes
 
-```bash
-python -m unittest discover -s tests -v
-```
+- This is a local-first tool.
+- It is built for research and opportunity finding.
+- Availability and price checks can vary by provider.
+- Fallback results are useful, but official registrar APIs are more reliable.
 
-Frontend:
-
-```bash
-cd frontend
-npm test
-npm run build
-```
-
-## Local Data Files
-
-The backend writes these files under `backend/data` during local development, or inside the Docker volume in Compose:
-
-- `settings.json`
-- `saved_domains.json`
-- `available_results.csv`
-- `logs.txt`
-
-Do not commit real API keys. The included defaults are blank and safe to publish.
+---
 
 ## Project Structure
 
 ```txt
 backend/
-  main.py
-  services/
-  data/
-  Dockerfile
 frontend/
-  app/
-  components/
-  lib/
-  Dockerfile
+tests/
 docker-compose.yml
 .env.example
+README.md
 ```
 
-The original CLI prototype remains in `domain_hunter.py` with its tests preserved.
-
-## Notes
-
-- V1 is intentionally local-first: no auth, no marketplace, no payments, no database, no scraping, and no email automation.
-- Domain availability APIs can rate-limit or return uncertain results. Treat `UNKNOWN`/fallback behavior as research assistance, not registrar-grade final proof.
+The original CLI prototype is still included in `domain_hunter.py`.
