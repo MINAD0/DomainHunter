@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { DomainResult, GeoStyle, SettingsPayload } from "@/lib/api";
 import { apiGet, apiPost } from "@/lib/api";
+import { MOST_SEARCHED_NICHES } from "@/lib/niches";
 import {
   allItemsSelected,
   buildTldOptions,
@@ -22,6 +23,8 @@ export default function GeneratorPage() {
   const [country, setCountry] = useState("United States");
   const [selectedCities, setSelectedCities] = useState<string[]>(["Dallas"]);
   const [niche, setNiche] = useState("Industrial Cleaning");
+  const [niches, setNiches] = useState<string[]>(MOST_SEARCHED_NICHES);
+  const [customNicheEnabled, setCustomNicheEnabled] = useState(false);
   const [selectedTlds, setSelectedTlds] = useState<string[]>([".com"]);
   const [count, setCount] = useState(25);
   const [style, setStyle] = useState<GeoStyle>("Premium Geo");
@@ -51,6 +54,19 @@ export default function GeneratorPage() {
       })
       .catch((err) => setError(String(err)));
   }, [country]);
+
+  useEffect(() => {
+    apiGet<{ niches: string[] }>("/niches")
+      .then((data) => {
+        if (Array.isArray(data.niches) && data.niches.length) {
+          setNiches(data.niches);
+          if (!data.niches.includes(niche)) {
+            setCustomNicheEnabled(true);
+          }
+        }
+      })
+      .catch(() => setNiches(MOST_SEARCHED_NICHES));
+  }, []);
 
   const tldOptions = useMemo(
     () => buildTldOptions(settings?.default_tlds ?? emptySettings().default_tlds),
@@ -152,7 +168,37 @@ export default function GeneratorPage() {
             </div>
 
             <Field label="Niche">
-              <input className={inputClass} value={niche} onChange={(event) => setNiche(event.target.value)} />
+              <div>
+                <select
+                  className={inputClass}
+                  value={customNicheEnabled ? "Other" : niche}
+                  onChange={(event) => {
+                    const val = event.target.value;
+                    if (val === "Other") {
+                      setCustomNicheEnabled(true);
+                      setNiche("");
+                    } else {
+                      setCustomNicheEnabled(false);
+                      setNiche(val);
+                    }
+                  }}
+                >
+                  {niches.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                  <option value="Other">Other (custom)</option>
+                </select>
+                {customNicheEnabled ? (
+                  <input
+                    className={`${inputClass} mt-2`}
+                    value={niche}
+                    onChange={(event) => setNiche(event.target.value)}
+                    placeholder="Enter custom niche"
+                  />
+                ) : null}
+              </div>
             </Field>
 
             <div>

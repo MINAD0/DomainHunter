@@ -139,7 +139,10 @@ async def _post_openrouter(api_key: str, model: str, prompt: str) -> str:
         )
         response.raise_for_status()
         data = response.json()
-    return data["choices"][0]["message"]["content"]
+    try:
+        return data["choices"][0]["message"]["content"]
+    except Exception:
+        return str(data) if data is not None else ""
 
 
 async def _post_openai(api_key: str, model: str, prompt: str) -> str:
@@ -159,7 +162,10 @@ async def _post_openai(api_key: str, model: str, prompt: str) -> str:
         )
         response.raise_for_status()
         data = response.json()
-    return data["choices"][0]["message"]["content"]
+    try:
+        return data["choices"][0]["message"]["content"]
+    except Exception:
+        return str(data) if data is not None else ""
 
 
 async def _post_gemini(api_key: str, model: str, prompt: str) -> str:
@@ -173,7 +179,10 @@ async def _post_gemini(api_key: str, model: str, prompt: str) -> str:
         )
         response.raise_for_status()
         data = response.json()
-    return data["candidates"][0]["content"]["parts"][0]["text"]
+    try:
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        return str(data) if data is not None else ""
 
 
 async def _post_claude(api_key: str, model: str, prompt: str) -> str:
@@ -194,7 +203,10 @@ async def _post_claude(api_key: str, model: str, prompt: str) -> str:
         )
         response.raise_for_status()
         data = response.json()
-    return "".join(part.get("text", "") for part in data.get("content", []))
+    try:
+        return "".join(part.get("text", "") for part in data.get("content", []))
+    except Exception:
+        return str(data) if data is not None else ""
 
 
 async def _post_custom(ai_settings: dict[str, Any], prompt: str) -> str:
@@ -208,7 +220,10 @@ async def _post_custom(ai_settings: dict[str, Any], prompt: str) -> str:
         response.raise_for_status()
         data = response.json()
     if isinstance(data, dict):
-        return str(data.get("content") or data.get("text") or json.dumps(data))
+        try:
+            return str(data.get("content") or data.get("text") or json.dumps(data))
+        except Exception:
+            return json.dumps(data)
     return str(data)
 
 
@@ -270,6 +285,10 @@ def build_ai_seed_ideas_from_response(
 
 
 def _load_ai_json(content: str) -> dict[str, Any] | list[Any]:
+    if content is None:
+        return {"ideas": []}
+    if not isinstance(content, str):
+        content = str(content)
     stripped = content.strip()
     if stripped.startswith("```"):
         stripped = re.sub(r"^```(?:json)?", "", stripped).strip()

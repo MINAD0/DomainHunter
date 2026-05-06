@@ -71,7 +71,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100/55 sm:text-sm">
               Domain Hunter
             </p>
-            <p className="text-base font-semibold leading-tight text-white sm:text-lg">GeoDomains</p>
           </div>
         </div>
         <nav className="flex-1 space-y-1 px-3 py-5">

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from pathlib import Path
 
@@ -67,6 +68,42 @@ def create_app(data_dir: Path | None = None) -> FastAPI:
     @app.get("/cities")
     def cities(country: str) -> dict[str, list[str]]:
         return {"cities": load_city_catalog().cities_for(country)}
+
+    @app.get("/niches")
+    def niches() -> dict[str, list[str]]:
+        # Try to read a curated list from data/most_searched_niches.json, fall back to a default list
+        data_path = storage.data_dir / "most_searched_niches.json"
+        if data_path.exists():
+            try:
+                loaded = json.loads(data_path.read_text(encoding="utf-8"))
+                if isinstance(loaded, list) and all(isinstance(item, str) for item in loaded):
+                    return {"niches": loaded}
+            except Exception:
+                pass
+        # Fallback list (kept small and sensible)
+        fallback = [
+            "Industrial Cleaning",
+            "Plumbing",
+            "Roofing",
+            "Landscaping",
+            "HVAC",
+            "Pest Control",
+            "Electrician",
+            "Locksmith",
+            "Painting",
+            "Moving",
+            "Auto Repair",
+            "Lawn Care",
+            "Window Cleaning",
+            "Pool Service",
+            "Tutoring",
+            "Daycare",
+            "Catering",
+            "IT Support",
+            "Home Security",
+            "Photography",
+        ]
+        return {"niches": fallback}
 
     @app.post("/generate", response_model=GenerateResponse)
     async def generate(request: GenerateAndCheckRequest) -> GenerateResponse:
